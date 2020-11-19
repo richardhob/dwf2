@@ -525,14 +525,14 @@ _define("FDwfAnalogInChannelRangeInfo",
 #  FDwfAnalogInChannelRangeSteps(HDWF hdwf, double rgVoltsStep[32], int *pnSteps);
 _xdefine("FDwfAnalogInChannelRangeSteps",
          (HDWF, POINTER(c_double), POINTER(c_int),),
-         ((_ARGIN, "hdwf"), (_ARGIN, "rgVoltsStep"), (_ARGOUT, "pnSteps"),))
+         ((_ARGIN, "hdwf"), (_ARGIN, "rgVoltsStep"), (_ARGIN, "pnSteps"),))
 def FDwfAnalogInChannelRangeSteps(hdwf, rgVoltsStep=None, pnSteps=None):
     if rgVoltsStep is not None and pnSteps is not None:
         return _FDwfAnalogInChannelRangeSteps(hdwf, rgVoltsStep, pnSteps)
-    rgVoltsSteps = (c_double * 32)()
+    rgVoltsStep = (c_double * 32)()
     pnSteps = c_int()
     _FDwfAnalogInChannelRangeSteps(hdwf, rgVoltsStep, byref(pnSteps))
-    return tuple([ rgVoltSteps[i] for i in range(pnSteps.value) ])
+    return tuple([rgVoltStep[i] for i in range(pnSteps.value)])
 #  FDwfAnalogInChannelRangeSet(HDWF hdwf, int idxChannel, double voltsRange);
 _define("FDwfAnalogInChannelRangeSet",
         (HDWF, c_int, c_double,),
