@@ -667,7 +667,7 @@ class DwfDigitalIO(Dwf):
 
 # Configure:
     def outputEnableInfo(self):
-        return _l.FDwfDigitalIOOutputEnableInfo(self)
+        return _l.FDwfDigitalIOOutputEnableInfo(self.hdwf)
     def outputEnableSet(self, output_enable):
         _l.FDwfDigitalIOOutputEnableSet(self.hdwf, output_enable)
     def outputEnableGet(self):
