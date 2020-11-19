@@ -194,7 +194,7 @@ DwfDigitalInClockSourceExternal = 1
 
 DwfDigitalInSampleMode = c_int
 DwfDigitalInSampleModeSimple = 0
-# alternate samples: noise|sample|noise|sample|... 
+# alternate samples: noise|sample|noise|sample|...
 # where noise is more than 1 transition between 2 samples
 DwfDigitalInSampleModeNoise = 1
 
@@ -370,7 +370,7 @@ _define("FDwfDeviceTriggerPC",
 
 
 # ANALOG IN INSTRUMENT FUNCTIONS
-# Control and status: 
+# Control and status:
 #  FDwfAnalogInReset(HDWF hdwf);
 _define("FDwfAnalogInReset",
         (HDWF,), ((_ARGIN, "hdwf"),))
@@ -408,7 +408,7 @@ def FDwfAnalogInStatusData(hdwf, idxChannel,
     if cdData is not None:
         return _FDwfAnalogInStatusData(hdwf, idxChannel,
                                        rgdVoltData_or_cdData, cdData)
-    cdData = rgdVoltData_or_cdData
+    cdData = int(rgdVoltData_or_cdData)
     rgdVoltData = (c_double * cdData)()
     _FDwfAnalogInStatusData(hdwf, idxChannel, rgdVoltData, cdData)
     return tuple(rgdVoltData)
@@ -458,7 +458,7 @@ _define("FDwfAnalogInFrequencyGet",
         (HDWF, POINTER(c_double),),
         ((_ARGIN, "hdwf"), (_ARGOUT, "phzFrequency"),))
 #  FDwfAnalogInBitsInfo(HDWF hdwf, int *pnBits);
-# Returns the number of ADC bits 
+# Returns the number of ADC bits
 _define("FDwfAnalogInBitsInfo",
         (HDWF, POINTER(c_int),), ((_ARGIN, "hdwf"), (_ARGOUT, "pnBits"),))
 
@@ -895,7 +895,7 @@ _define("FDwfAnalogOutNodeFrequencyGet",
         (HDWF, c_int, AnalogOutNode, POINTER(c_double),),
         ((_ARGIN, "hdwf"), (_ARGIN, "idxChannel"), (_ARGIN, "node"),
          (_ARGOUT, "phzFrequency"),))
-# Carrier Amplitude or Modulation Index 
+# Carrier Amplitude or Modulation Index
 #  FDwfAnalogOutNodeAmplitudeInfo(HDWF hdwf, int idxChannel, AnalogOutNode node, double *pMin, double *pMax);
 _define("FDwfAnalogOutNodeAmplitudeInfo",
         (HDWF, c_int, AnalogOutNode, POINTER(c_double), POINTER(c_double),),
@@ -1166,7 +1166,7 @@ _define("FDwfDigitalIOInputStatus",
 
 
 # DIGITAL IN INSTRUMENT FUNCTIONS
-# Control and status: 
+# Control and status:
 #  FDwfDigitalInReset(HDWF hdwf);
 _define("FDwfDigitalInReset",
         (HDWF,), ((_ARGIN, "hdwf"),))
@@ -1455,7 +1455,7 @@ _define("FDwfDigitalOutOutputInfo",
         (HDWF, c_int, POINTER(c_int),),
         ((_ARGIN, "hdwf"), (_ARGIN, "idxChannel"),
          (_ARGOUT, "pfsDwfDigitalOutOutput"),))
-#  FDwfDigitalOutOutputSet(HDWF hdwf, int idxChannel, DwfDigitalOutOutput v); 
+#  FDwfDigitalOutOutputSet(HDWF hdwf, int idxChannel, DwfDigitalOutOutput v);
 _define("FDwfDigitalOutOutputSet",
         (HDWF, c_int, DwfDigitalOutOutput,),
         ((_ARGIN, "hdwf"), (_ARGIN, "idxChannel"), (_ARGIN, "v"),))
