@@ -3,29 +3,28 @@
 
 from setuptools import setup
 
-import sys
 from codecs import open
-from os import path
+import os
 
-here = path.abspath(path.dirname(__file__))
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+PATH_HERE = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(PATH_HERE, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='dwf',
-    version='0.2.0.dev0',
-    description="Digilent's DWF library wrapper",
+    name='dwf2',
+    version='0.3.0',
+    description="Digilent DWF library wrapper",
     long_description=long_description,
-    url='https://github.com/amuramatsu/dwf/',
-    author='MURAMATSU Atsushi',
-    author_email='amura@tomato.sakura.ne.jp',
+    url='https://github.com/richardhob/dwf2',
+    author='Richard Hoberecht',
+    author_email='richardhob@gmail.com',
     license='MIT',
     install_requires=[
         'enum34'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
-        
+
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
 
@@ -36,12 +35,11 @@ setup(
         'Operating System :: MacOS :: MacOS X',
 
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6', # Not tested
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3', # Not tested
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',        
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
     platforms="Linux,Mac,Windows",
     packages=['dwf'],
