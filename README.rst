@@ -7,7 +7,9 @@ What is this?
 
 This is a python library for controlling Analog Discovery and
 Electronics Explorer series presetned by `Digilent inc.`_
-This library needs Waveforms SDK.
+
+This library requires that the Waveforms SDK be installed (comes with Waveforms
+2015).
 
 I tested this library with Analog Discovery 2 and
 `Waveforms 2015`_ in below environment.
@@ -16,12 +18,11 @@ I tested this library with Analog Discovery 2 and
 * python 3.4.3, python 2.7.6 on Ubuntu 14.04LTS
 * python 3.5.1 on Windows 7
 
-I wrote this library for supporting python 2.6, 2.7, 3.3 or above.
-
 This software is released under the MIT License, see LICENSE.txt.
 
 .. _Digilent inc.: https://digilentinc.com/
 .. _Waveforms 2015: https://reference.digilentinc.com/waveforms3
+.. _Waveforms 2015 SDK: https://reference.digilentinc.com/reference/software/waveforms/waveforms-sdk/reference-manual
 
 Installing
 ==========
@@ -30,7 +31,7 @@ You can install the latest stable version from PyPI:
 
 .. code:: bash
 
-  pip install dwf
+  pip install dwf2
 
 or if you prefer, install it from this repo like this:
 
