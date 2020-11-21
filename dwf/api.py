@@ -1,29 +1,6 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-===========================================
-Digilent's DWF library wrapper for python.
-===========================================
-
-Copyright notice
-================
-
-Copyright (c) 2016 MURAMATSU Atsushi <amura@tomato.sakura.ne.jp>
-
-This software is released under the MIT License.
-http://opensource.org/licenses/mit-license.php
-
-
-Supported platforms
-===================
-
-* Python 2.6, 2.7 or Python 3.3 or above
-* Windows, OSX, or Linux with Digilent's Waveforms 2015 or lator
-
-This code is tested with Waveforms SDK, October 12, 2015 version.
-'''
-
 from enum import IntEnum
 
 from . import lowlevel as _l
@@ -33,6 +10,15 @@ from . import lowlevel as _l
 #################################################################
 
 def _make_set(value, enum):
+    ''' Helper function which turns the input `value` into a tuple of enums.
+
+    Args:
+        value (int): Raw register value / result from the device
+        enum (IntEnum): Enumeration which describes the bits in the value
+
+    Returns:
+        tuple of enums
+    '''
     result = []
     for e in list(enum):
         if _l.IsBitSet(value, e.value):
@@ -42,7 +28,7 @@ def _make_set(value, enum):
 # DEVICE MANAGMENT FUNCTIONS
 # Enumeration:
 class ENUMFILTER(IntEnum):
-    ALL = _l.enumfilterAll
+    ALL       = _l.enumfilterAll
     EEXPLORER = _l.enumfilterEExplorer
     DISCOVERY = _l.enumfilterDiscovery
 
@@ -66,49 +52,115 @@ def DwfEnumeration(enumfilter=ENUMFILTER.ALL):
     return tuple([DwfDevice(i) for i in range(num)])
 
 class DwfDevice(object):
+    '''DWF Device instance, which contains information about:
+
+    - What type of device this is
+    - Device index in the Enumeration
+    - Device configuration
+
+    This class is returned when `DwfEnumeration` is called with devices
+    connected:
+
+    Example:
+    >>> devices = dwf.DwfEnumeration()
+
+    Args:
+        idxDevice (int): Device index from the DWF Enumeration.
+    '''
     class DEVID(IntEnum):
-        EEXPLORER = _l.devidEExplorer
-        DISCOVERY = _l.devidDiscovery
+        '''Device type (returned from FDwfEnumDeviceType'''
+        EEXPLORER                   = _l.devidEExplorer
+        DISCOVERY                   = _l.devidDiscovery
 
     class DEVVER(IntEnum):
-        EEXPLORER_C = _l.devverEExplorerC
-        EEXPLORER_E = _l.devverEExplorerE
-        EEXPLORER_F = _l.devverEExplorerF
-        DISCOVERY_A = _l.devverDiscoveryA
-        DISCOVERY_B = _l.devverDiscoveryB
-        DISCOVERY_C = _l.devverDiscoveryC
+        '''Device version (returned from FDwfEnumDeviceType'''
+        EEXPLORER_C                 = _l.devverEExplorerC
+        EEXPLORER_E                 = _l.devverEExplorerE
+        EEXPLORER_F                 = _l.devverEExplorerF
+        DISCOVERY_A                 = _l.devverDiscoveryA
+        DISCOVERY_B                 = _l.devverDiscoveryB
+        DISCOVERY_C                 = _l.devverDiscoveryC
 
     class CONFIGINFO(IntEnum):
-        ANALOG_IN_CHANNEL_COUNT = _l.DECIAnalogInChannelCount
-        ANALOG_OUT_CHANNEL_COUNT = _l.DECIAnalogOutChannelCount
-        ANALOG_IO_CHANNEL_COUNT = _l.DECIAnalogIOChannelCount
-        DIGITAL_IN_CHANNEL_COUNT = _l.DECIDigitalInChannelCount
-        DIGITAL_OUT_CHANNEL_COUNT = _l.DECIDigitalOutChannelCount
-        DIGITAL_IO_CHANNEL_COUNT = _l.DECIDigitalIOChannelCount
-        ANALOG_IN_BUFFER_SIZE = _l.DECIAnalogInBufferSize
-        ANALOG_OUT_BUFFER_SIZE = _l.DECIAnalogOutBufferSize
-        DIGITAL_IN_BUFFER_SIZE = _l.DECIDigitalInBufferSize
-        DIGITAL_OUT_BUFFER_SIZE = _l.DECIDigitalOutBufferSize
+        ANALOG_IN_CHANNEL_COUNT     = _l.DECIAnalogInChannelCount
+        ANALOG_OUT_CHANNEL_COUNT    = _l.DECIAnalogOutChannelCount
+        ANALOG_IO_CHANNEL_COUNT     = _l.DECIAnalogIOChannelCount
+        DIGITAL_IN_CHANNEL_COUNT    = _l.DECIDigitalInChannelCount
+        DIGITAL_OUT_CHANNEL_COUNT   = _l.DECIDigitalOutChannelCount
+        DIGITAL_IO_CHANNEL_COUNT    = _l.DECIDigitalIOChannelCount
+        ANALOG_IN_BUFFER_SIZE       = _l.DECIAnalogInBufferSize
+        ANALOG_OUT_BUFFER_SIZE      = _l.DECIAnalogOutBufferSize
+        DIGITAL_IN_BUFFER_SIZE      = _l.DECIDigitalInBufferSize
+        DIGITAL_OUT_BUFFER_SIZE     = _l.DECIDigitalOutBufferSize
 
     def __init__(self, idxDevice):
+        super(DwfDevice, self).__init__()
         self.idxDevice = idxDevice
+
     def deviceType(self):
+        ''' Get the Device Type from the `FDwfEnumDeviceType` low level
+        function.
+
+        Returns:
+            Device Id and Device Version (as Enums)
+        '''
         devid, devver = _l.FDwfEnumDeviceType(self.idxDevice)
         return self.DEVID(devid), self.DEVVER(devver)
+
     def isOpened(self):
+        ''' Is this device open?
+
+        Returns:
+            True if open, False otherwise.
+        '''
         return bool(_l.FDwfEnumDeviceIsOpened(self.idxDevice))
+
     def userName(self):
+        ''' Get the Device's User set name
+
+        Returns:
+            Retreived Name as a string.
+        '''
         return _l.FDwfEnumUserName(self.idxDevice)
+
     def deviceName(self):
+        ''' Get the Device's name.
+
+        Returns:
+            Retreived Name as a string.
+        '''
         return _l.FDwfEnumDeviceName(self.idxDevice)
+
     def SN(self):
+        ''' Get the Device's serial number.
+
+        Returns:
+            Serial Nmber as a string.
+        '''
         return _l.FDwfEnumSN(self.idxDevice)
+
     def config(self):
+        ''' Get the device's configuration.
+
+        Returns:
+            Device configuration as an integer.
+        '''
         return _l.FDwfEnumConfig(self.idxDevice)
+
     def configInfo(self, info):
+        ''' Get the device's configuration information?'''
         return _l.FDwfEnumConfigInfo(self.idxDevice, info)
 
     def open(self, config=None):
+        '''Open this device.
+
+        Args:
+            config (int): Configuration to use. Default is None, which uses the
+                current configuration.
+
+        Returns:
+            dwf.Dwf device.
+        '''
         return Dwf(self.idxDevice, idxCfg=config)
 
 class _HDwf(object):
