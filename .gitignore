@@ -8,3 +8,4 @@ dist/
 build/
 *.egg-info
 python-env/
+.pytest_cache/

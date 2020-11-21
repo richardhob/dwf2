@@ -30,7 +30,7 @@ from . import lowlevel as _l
 
 #################################################################
 # Class-based APIs
-##################
+#################################################################
 
 def _make_set(value, enum):
     result = []
@@ -47,8 +47,23 @@ class ENUMFILTER(IntEnum):
     DISCOVERY = _l.enumfilterDiscovery
 
 def DwfEnumeration(enumfilter=ENUMFILTER.ALL):
+    '''Enumerate the connected DWF devices.
+
+    Example:
+        >>> dwf.DwfEnumeration(dwf.ENUMFILTER.ALL)
+        (...)
+
+    Args:
+        enumfilter (dwf.ENUMFILTER): Device type to enuemrate. Options are:
+            - dwf.ENUMFILTER.ALL
+            - dwf.ENUMFILTER.EEXPLORER
+            - dwf.ENUMFILTER.DISCOVERY
+
+    Returns:
+        tuple of dwf.DwfDevice values
+    '''
     num = _l.FDwfEnum(enumfilter)
-    return tuple([ DwfDevice(i) for i in range(num) ])
+    return tuple([DwfDevice(i) for i in range(num)])
 
 class DwfDevice(object):
     class DEVID(IntEnum):
@@ -113,22 +128,22 @@ class Dwf(object):
     DEVICE_NONE = _l.hdwfNone
 
     class TRIGSRC(IntEnum):
-        '''trigger source'''
-        NONE = _l.trigsrcNone
-        PC = _l.trigsrcPC
-        DETECTOR_ANALOG_IN = _l.trigsrcDetectorAnalogIn
+        '''Trigger source'''
+        NONE                = _l.trigsrcNone
+        PC                  = _l.trigsrcPC
+        DETECTOR_ANALOG_IN  = _l.trigsrcDetectorAnalogIn
         DETECTOR_DIGITAL_IN = _l.trigsrcDetectorDigitalIn
-        ANALOG_IN = _l.trigsrcAnalogIn
-        DIGITAL_IN = _l.trigsrcDigitalIn
-        DIGITAL_OUT = _l.trigsrcDigitalOut
-        ANALOG_OUT1 = _l.trigsrcAnalogOut1
-        ANALOG_OUT2 = _l.trigsrcAnalogOut2
-        ANALOG_OUT3 = _l.trigsrcAnalogOut3
-        ANALOG_OUT4 = _l.trigsrcAnalogOut4
-        EXTERNAL1 = _l.trigsrcExternal1
-        EXTERNAL2 = _l.trigsrcExternal2
-        EXTERNAL3 = _l.trigsrcExternal3
-        EXTERNAL4 = _l.trigsrcExternal4
+        ANALOG_IN           = _l.trigsrcAnalogIn
+        DIGITAL_IN          = _l.trigsrcDigitalIn
+        DIGITAL_OUT         = _l.trigsrcDigitalOut
+        ANALOG_OUT1         = _l.trigsrcAnalogOut1
+        ANALOG_OUT2         = _l.trigsrcAnalogOut2
+        ANALOG_OUT3         = _l.trigsrcAnalogOut3
+        ANALOG_OUT4         = _l.trigsrcAnalogOut4
+        EXTERNAL1           = _l.trigsrcExternal1
+        EXTERNAL2           = _l.trigsrcExternal2
+        EXTERNAL3           = _l.trigsrcExternal3
+        EXTERNAL4           = _l.trigsrcExternal4
 
     class STATE(IntEnum):
         '''instrument states'''
@@ -143,24 +158,34 @@ class Dwf(object):
 
     def __init__(self, idxDevice=-1, idxCfg=None):
         if isinstance(idxDevice, Dwf):
-            raise Exception()
+            raise ValueError("idxDevice cannot be an instance of Dwf")
+
         if isinstance(idxDevice, DwfDevice):
             idxDevice = idxDevice.idxDevice
+
         if idxCfg is None:
             hdwf = _l.FDwfDeviceOpen(idxDevice)
         else:
             hdwf = _l.FDwfDeviceConfigOpen(idxDevice, idxCfg)
+
         if hdwf == self.DEVICE_NONE:
             raise RuntimeError("Device is not found")
+
         self.hdwf = _HDwf(hdwf)
+
     def close(self):
         self.hdwf.close()
+
     def autoConfigureSet(self, auto_configure):
         _l.FDwfDeviceAutoConfigureSet(self.hdwf, auto_configure)
+
     def autoConfigureGet(self):
         return bool(_l.FDwfDeviceAutoConfigureGet(self.hdwf))
+
     def reset(self):
+        '''Reset the Device.'''
         _l.FDwfDeviceReset(self.hdwf)
+
     def enableSet(self, enable):
         _l.FDwfDeviceEnableSet(self.hdwf, enable)
     def triggerInfo(self):
@@ -651,38 +676,144 @@ class DwfAnalogIO(Dwf):
 
 # DIGITAL IO INSTRUMENT FUNCTIONS
 class DwfDigitalIO(Dwf):
-# Control:
+    '''Digital IO Intrumentation functions.
+
+    Example:
+    >>> dio = dwf.DwfDigitalIO()
+    >>> dio.outputEnableSet(0xFF) # Enable DIO 0 -> 7
+    >>> dio.outputSet(0x12)       # Set DIO pins high
+    >>> dio.status()              # Retreive DIO status
+    >>> hex(dio.inputStatus())
+    0x12
+
+    Args:
+        idxDevice (int or dwf.Dwf): Device ID to use OR an instantiated DWF
+            device. Default is '-1', which automatically selects the first
+            device.
+        idxCfg (int): Device Configuration to use. Default is None, which
+            selects the default configuration. View what options are available
+            for yout device in the Waveforms Device Configuration manager
+    '''
+
     def __init__(self, idxDevice=-1, idxCfg=None):
         if isinstance(idxDevice, Dwf):
             self.hdwf = idxDevice.hdwf
         else:
             super(DwfDigitalIO, self).__init__(idxDevice, idxCfg)
+
     def reset(self, parent=False):
-        if parent: super(DwfDigitalIO, self).reset()
+        ''' Reset all the DigitalIO instrument parameters to default values, set
+        the output to zero (tri-state), and configures the DigitalIO instrument.
+
+        Args:
+            parent (bool): If True, use the Dwf Reset instead of the Digital IO
+                reset. Default is False.
+        '''
+        if parent:
+            super(DwfDigitalIO, self).reset()
         _l.FDwfDigitalIOReset(self.hdwf)
+
     def configure(self):
+        '''Configure the DigitalIO instrument.
+
+        Does not have to be called if the `AutoConfiguration` option is enabled.
+        '''
         return _l.FDwfDigitalIOConfigure(self.hdwf)
+
     def status(self):
+        '''Read the status and input values of the DigitalIO device to the PC.
+
+        The status and values are accessed by the `inputStatus` method.
+        '''
         _l.FDwfDigitalIOStatus(self.hdwf)
 
-# Configure:
     def outputEnableInfo(self):
+        '''Return the output enable mask that can be used on this device.
+
+        These are the pins that can be used as outputs on this device.
+
+        Returns:
+            Available Device Output Pins as an int
+        '''
         return _l.FDwfDigitalIOOutputEnableInfo(self.hdwf)
+
     def outputEnableSet(self, output_enable):
+        '''Enable specific pins for output.
+
+        This is used with `outputSet` to actually set the DIO output. This
+        method enables the DIO pins to set, `outputSet` actually sets the logic
+        level.
+
+        Example:
+        >>> dio = DwfDigitalIO()
+        >>> dio.outputEnableSet(0xFF) # Enable DIO 0 -> 7
+        >>> dio.outputSet(0x1F)       # Set DIO 0 -> 5 to High
+
+        Args:
+            output_enable (int): Integer mask for output pins.
+        '''
         _l.FDwfDigitalIOOutputEnableSet(self.hdwf, output_enable)
+
     def outputEnableGet(self):
+        '''Get the mask of enabled output pins.
+
+        Returns:
+            Integer mask of enabled output pins
+        '''
         return _l.FDwfDigitalIOOutputEnableGet(self.hdwf)
 
     def outputInfo(self):
+        '''
+        Returns:
+            The settable output value mask (bit set) that can be used on this device. 
+        '''
         return _l.FDwfDigitalIOOutputInfo(self.hdwf)
+
     def outputSet(self, output):
+        '''Set the output pins to the input value.
+
+        This function works with `outputEnableSet`, where this function sets the
+        logic level of the output pins, and `outputEnableSet` enables the output
+        pins.
+
+        Example:
+        >>> dio = DwfDigitalIO()
+        >>> dio.outputEnableSet(0xFF)   # Enable DIO 0 -> 7
+        >>> dio.outputSet(0x07)         # Set DIO 0, 1, 2 to high
+
+        Args:
+            output (int): Bits to set high / low
+        '''
         _l.FDwfDigitalIOOutputSet(self.hdwf, output)
+
     def outputGet(self):
+        '''Get the output pin state set by `outputSet`.
+
+        Returns:
+            integer mask of output pins set high.
+        '''
         return _l.FDwfDigitalIOOutputGet(self.hdwf)
 
     def inputInfo(self):
+        '''Returns the readable input value mask (bit set) that can be used on the device.
+
+        Returns:
+            Integer mask of readable DigitIO pins.
+        '''
         return _l.FDwfDigitalIOInputInfo(self.hdwf)
+
     def inputStatus(self):
+        '''Return the input states of all I/O pins.
+
+        Before calling the function above, call 'status' function to read the
+        Digital I/O states from the device.
+
+        Example:
+        >>> dio = DwfDigitalDio()
+        >>> dio.status()
+        >>> dio.inputStatus()
+        0x023
+        '''
         return _l.FDwfDigitalIOInputStatus(self.hdwf)
 
 # DIGITAL IN INSTRUMENT FUNCTIONS
