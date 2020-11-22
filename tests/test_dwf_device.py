@@ -79,14 +79,15 @@ def test_device_config(dev):
 
         assert name == 'test'
 
-def test_device_config_info(dev):
+@pytest.mark.parametrize('info', dwf.DwfDevice.CONFIGINFO)
+def test_device_config_info(dev, info):
     with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
         low_level_patch.FDwfEnumConfigInfo.return_value = 'test'
 
-        name = dev.configInfo('some_value')
+        name = dev.configInfo(info)
 
         low_level_patch.FDwfEnumConfigInfo.assert_called_once_with(dev.idxDevice,
-                'some_value')
+                info)
 
         assert name == 'test'
 

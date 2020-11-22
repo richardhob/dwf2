@@ -63,17 +63,25 @@ class DwfDevice(object):
 
     Example:
     >>> devices = dwf.DwfEnumeration()
+    >>> dev = devices[0]
+    >>> dev.name()
+    'Analog Discovery'
+    >>> dev.SN()
+    'SN:210244516509'
+    >>> dev.configInfo(dev.CONFIGINFO.ANALOG_IN_CHANNEL_COUNT)
+    2
+    >>> dwf = dev.open() # Open the selected device
 
     Args:
         idxDevice (int): Device index from the DWF Enumeration.
     '''
     class DEVID(IntEnum):
-        '''Device type (returned from FDwfEnumDeviceType'''
+        '''Device type (returned from deviceType)'''
         EEXPLORER                   = _l.devidEExplorer
         DISCOVERY                   = _l.devidDiscovery
 
     class DEVVER(IntEnum):
-        '''Device version (returned from FDwfEnumDeviceType'''
+        '''Device version (returned from deviceType)'''
         EEXPLORER_C                 = _l.devverEExplorerC
         EEXPLORER_E                 = _l.devverEExplorerE
         EEXPLORER_F                 = _l.devverEExplorerF
@@ -82,6 +90,7 @@ class DwfDevice(object):
         DISCOVERY_C                 = _l.devverDiscoveryC
 
     class CONFIGINFO(IntEnum):
+        '''Device Configuration Details, used with configInfo'''
         ANALOG_IN_CHANNEL_COUNT     = _l.DECIAnalogInChannelCount
         ANALOG_OUT_CHANNEL_COUNT    = _l.DECIAnalogOutChannelCount
         ANALOG_IO_CHANNEL_COUNT     = _l.DECIAnalogIOChannelCount
@@ -148,7 +157,16 @@ class DwfDevice(object):
         return _l.FDwfEnumConfig(self.idxDevice)
 
     def configInfo(self, info):
-        ''' Get the device's configuration information?'''
+        ''' Get the device's configuration information, based on the input
+        `info` parameter.
+
+        Args:
+            info (dwf.DwfDevice.CONFIGINFO): Device configuration parameter to
+                get information about.
+
+        Returns:
+            Number of features corresponding to the input info as an integer
+        '''
         return _l.FDwfEnumConfigInfo(self.idxDevice, info)
 
     def open(self, config=None):
@@ -164,15 +182,34 @@ class DwfDevice(object):
         return Dwf(self.idxDevice, idxCfg=config)
 
 class _HDwf(object):
+    '''Context manager for the DWF Hardware pointer, which automatically closes
+    the connection upon deletion.
+
+    This also implements the _as_parameter_ "ctypes" special attribute, which
+    automatically passes the HDWF context to CTYPES functions (so the DWF SDK
+    functions in the DLL). Which is neat.
+
+    This is instantiated in the `dwf.Dwf` class.
+
+    Args:
+        hdwf: Hardware context from FDwfDeviceOpen.
+    '''
     def __init__(self, hdwf):
+        super(_HDwf, self).__init__()
         self.hdwf = hdwf
+
     @property
     def _as_parameter_(self):
+        '''Special CTYPES attribute - pass the HDWF to the CTYPES functions when
+        used as a parameter.'''
         return self.hdwf
+
     def close(self):
+        '''Close the Hardware context if it is valid.'''
         if self.hdwf != _l.hdwfNone:
             _l.FDwfDeviceClose(self.hdwf)
             self.hdwf = _l.hdwfNone
+
     def __del__(self):
         self.close()
 
