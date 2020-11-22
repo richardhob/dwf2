@@ -214,7 +214,26 @@ class _HDwf(object):
         self.close()
 
 class Dwf(object):
-    DEVICE_NONE = _l.hdwfNone
+    ''' Main DWF device wrapper.
+
+    This class is used to configure the Hardware context, as well as configure
+    Triggers for various things.
+
+    Example:
+    >>> devices = dwf.DwfEnumerate()
+    >>> dev = devices[0].open() # get the DWF device for the enumerated devices
+
+    Example:
+    >>> dev = dwf.Dwf() # Get the first found device
+
+    Args:
+        idxDevice (int): Device index to open. If set to '-1', the first found
+            device will be used. Default is '-1'.
+        idxCfg (int): Device configuration to use. The Device configuration can
+            be found in the Waveforms GUI / Device Manager. Default is None (ie
+            use the current configuration)
+    '''
+    DEVICE_NONE             = _l.hdwfNone
 
     class TRIGSRC(IntEnum):
         '''Trigger source'''
@@ -236,19 +255,24 @@ class Dwf(object):
 
     class STATE(IntEnum):
         '''instrument states'''
-        READY = _l.DwfStateReady
-        CONFIG = _l.DwfStateConfig
-        PREFILL = _l.DwfStatePrefill
-        ARMED = _l.DwfStateArmed
-        WAIT = _l.DwfStateWait
-        TRIGGERED = _l.DwfStateTriggered
-        RUNNING = _l.DwfStateRunning
-        DONE = _l.DwfStateDone
+        READY               = _l.DwfStateReady
+        CONFIG              = _l.DwfStateConfig
+        PREFILL             = _l.DwfStatePrefill
+        ARMED               = _l.DwfStateArmed
+        WAIT                = _l.DwfStateWait
+        TRIGGERED           = _l.DwfStateTriggered
+        RUNNING             = _l.DwfStateRunning
+        DONE                = _l.DwfStateDone
 
     def __init__(self, idxDevice=-1, idxCfg=None):
+        super(Dwf, self).__init__()
+
+        # Not sure why this is needed - should never call with a Dwf class
         if isinstance(idxDevice, Dwf):
             raise ValueError("idxDevice cannot be an instance of Dwf")
 
+        # Also not sure why this is needed? DwfDevice uses the device index to
+        # instantiate an instance of this class
         if isinstance(idxDevice, DwfDevice):
             idxDevice = idxDevice.idxDevice
 
@@ -263,20 +287,42 @@ class Dwf(object):
         self.hdwf = _HDwf(hdwf)
 
     def close(self):
+        '''Close the HDWF instance.'''
         self.hdwf.close()
 
     def autoConfigureSet(self, auto_configure):
+        '''Enable or disable Autoconfiguration of the device.
+
+        When this setting is enabled, the device is automatically configured
+        every time an instrument parameter is set.
+
+        For example, when AutoConfigure is enabled, FDwfAnalogOutConfigure does
+        not need to be called after FDwfAnalogOutRunSet. This adds latency to
+        every Set function; just as much latency as calling the corresponding
+        Configure function directly afterward.
+
+        Args:
+            auto_configure (bool): True -> Enable, False -> Disable
+        '''
         _l.FDwfDeviceAutoConfigureSet(self.hdwf, auto_configure)
 
     def autoConfigureGet(self):
+        '''Get the AutoConfigure setting.
+
+        Returns:
+            True if Auto Configuration is enabled, False otherwise.
+        '''
         return bool(_l.FDwfDeviceAutoConfigureGet(self.hdwf))
 
     def reset(self):
-        '''Reset the Device.'''
+        '''Reset the Device, and configure all device and instrument parameters
+        to default values.'''
         _l.FDwfDeviceReset(self.hdwf)
 
     def enableSet(self, enable):
+        '''Not sure what this does - Enable / Disable the device maybe?'''
         _l.FDwfDeviceEnableSet(self.hdwf, enable)
+
     def triggerInfo(self):
         return _make_set(_l.FDwfDeviceTriggerInfo(self.hdwf), self.TRIGSRC)
     def triggerSet(self, idxPin, trigsrc):
