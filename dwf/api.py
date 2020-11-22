@@ -28,6 +28,7 @@ def _make_set(value, enum):
 # DEVICE MANAGMENT FUNCTIONS
 # Enumeration:
 class ENUMFILTER(IntEnum):
+    '''DwfEnumeration filter options'''
     ALL       = _l.enumfilterAll
     EEXPLORER = _l.enumfilterEExplorer
     DISCOVERY = _l.enumfilterDiscovery
@@ -983,56 +984,139 @@ class DwfDigitalIO(Dwf):
 
 # DIGITAL IN INSTRUMENT FUNCTIONS
 class DwfDigitalIn(Dwf):
+    '''Digital Input configuration / recording (Logic Analyzer).
+
+    Example:
+    >>> dev = dwf.DwfDigitalIn()
+    >>>
+
+    Args:
+        idxDevice (int): Device index to open. If set to '-1', the first found
+            device will be used. Default is '-1'.
+        idxCfg (int): Device configuration to use. The Device configuration can
+            be found in the Waveforms GUI / Device Manager. Default is None (ie
+            use the current configuration)
+    '''
+
     class ACQMODE(IntEnum):
-        '''acquisition modes'''
-        SINGLE = _l.acqmodeSingle
-        SCAN_SHIFT = _l.acqmodeScanShift
-        SCAN_SCREEN = _l.acqmodeScanScreen
-        RECORD = _l.acqmodeRecord
+        '''Acquisition modes'''
+        SINGLE          = _l.acqmodeSingle
+        SCAN_SHIFT      = _l.acqmodeScanShift
+        SCAN_SCREEN     = _l.acqmodeScanScreen
+        RECORD          = _l.acqmodeRecord
 
     class CLOCKSOURCE(IntEnum):
-        INTERNAL = _l.DwfDigitalInClockSourceInternal
-        EXTERNAL = _l.DwfDigitalInClockSourceExternal
+        INTERNAL        = _l.DwfDigitalInClockSourceInternal
+        EXTERNAL        = _l.DwfDigitalInClockSourceExternal
 
     class SAMPLEMODE(IntEnum):
-        SIMPLE = _l.DwfDigitalInSampleModeSimple
+        SIMPLE          = _l.DwfDigitalInSampleModeSimple
         # alternate samples: noise|sample|noise|sample|...
         # where noise is more than 1 transition between 2 samples
-        NOISE = _l.DwfDigitalInSampleModeNoise
+        NOISE           = _l.DwfDigitalInSampleModeNoise
 
-# Control and status:
     def __init__(self, idxDevice=-1, idxCfg=None):
         if isinstance(idxDevice, Dwf):
             self.hdwf = idxDevice.hdwf
         else:
             super(DwfDigitalIn, self).__init__(idxDevice, idxCfg)
+
     def reset(self, parent=False):
-        if parent: super(DwfDigitalIn, self).reset()
+        ''' Reset all the DigitalIn instrument parameters to default values, set
+        the output to zero (tri-state), and configures the DigitalIn instrument.
+
+        Args:
+            parent (bool): If True, use the Dwf Reset instead of the Digital IO
+                reset. Default is False.
+        '''
+        if parent:
+            super(DwfDigitalIn, self).reset()
         _l.FDwfDigitalInReset(self.hdwf)
+
     def configure(self, reconfigure, start):
+        '''Configure the device and stop / stop the the acquisition.
+
+        To reset the Auto trigger timeout, set reconfigure to True.
+
+        Args:
+            reconfigure (bool): Configure the device.
+            start (bool): Start the acquisition.
+        '''
         return _l.FDwfDigitalInConfigure(self.hdwf, reconfigure, start)
-    def status(self, read_data):
+    def status(self, read_data=False):
+        '''Check the instrument state, and / or read device data.
+
+        Args:
+            read_data (bool): If True, read data from the device. Default is
+                False.
+
+        Returns:
+            instrument state (dwf.DwfDigitalIn.STATE) enumerated type
+        '''
         return self.STATE(_l.FDwfDigitalInStatus(self.hdwf, read_data))
+
     def statusSamplesLeft(self):
+        '''Retreive the number of samples remaining in the acquisition.
+
+        Returns:
+            Number of samples left (as an integer)
+        '''
         return _l.FDwfDigitalInStatusSamplesLeft(self.hdwf)
+
     def statusSamplesValid(self):
+        '''Retreive the number of valid / acquired data samples.
+
+        Returns:
+            Number of samples acquired (as an integer)
+        '''
         return _l.FDwfDigitalInStatusSamplesValid(self.hdwf)
+
     def statusIndexWrite(self):
+        '''Retreive the buffer write pointer, which is needed when using the
+        Scan Screen acquisition mode to display the scan bar.
+
+        Returns:
+            Buffer write pointer index (as an integer)
+        '''
         return _l.FDwfDigitalInStatusIndexWrite(self.hdwf)
+
     def statusAutoTriggered(self):
+        '''Is the acquisition configured for Auto trigger?
+
+        Returns:
+            True if the acquisition is configured for Auto trigger. False
+            otherwise
+        '''
         return bool(_l.FDwfDigitalInStatusAutoTriggered(self.hdwf))
+
     def statusData(self, count):
+        '''Acquire sample data from the instrument.
+
+        The sample format is specified by sampleFormatSet method.
+
+        Args:
+            count (int): Number of samples to copy
+
+        Returns:
+            Retreived data in the set format (list of integers)
+        '''
         bit_width = self.sampleFormatGet()
         countOfDataBytes = count * (bit_width // 8)
         data = _l.FDwfDigitalInStatusData(self.hdwf, countOfDataBytes)
+
         if bit_width == 16:
-            data = [ (data[2*i+1] & 0xff) << 8 | (data[2*i] & 0xff)
-                     for i in range(len(data) // 2) ]
+            data = [  (data[2*i+1] & 0xff) << 8
+                    | (data[2*i] & 0xff)
+                    for i in range(len(data) // 2)]
         elif bit_width == 32:
-            data = [ (data[4*i+3] & 0xff) << 24 | ((data[4*i+2] & 0xff) << 16) |
-                     ((data[4*i+1] & 0xff) << 8) | (data[4*i] & 0xff)
-                     for i in range(len(data) // 4) ]
+            data = [  ((data[4*i+3] & 0xff) << 24)
+                    | ((data[4*i+2] & 0xff) << 16)
+                    | ((data[4*i+1] & 0xff) << 8)
+                    | (data[4*i] & 0xff)
+                     for i in range(len(data) // 4)]
+
         return data
+
     def statusRecord(self):
         return _l.FDwfDigitalInStatusRecord(self.hdwf)
 
