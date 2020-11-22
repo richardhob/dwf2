@@ -22,4 +22,6 @@ These include (but aren't limited to):
 - Large Acquisitions
 - Others!
 
+# Sync between DWF devices Example
 
+    https://forum.digilentinc.com/topic/284-synchronize-awg-between-devices-with-waveforms-sdk/
