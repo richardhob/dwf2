@@ -84,3 +84,48 @@ def test_dwf_enable_set(config):
             dev.enableSet(config)
 
             low_level_patch.FDwfDeviceEnableSet.assert_called_once_with(dev.hdwf, config)
+
+def test_dwf_trigger_info():
+    with unittest.mock.patch.object(dwf.api, '_make_set') as make_patch:
+        with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+            with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+                dev = dwf.Dwf()
+
+                dev.triggerInfo()
+
+                low_level_patch.FDwfDeviceTriggerInfo.assert_called_once_with(dev.hdwf)
+                make_patch.assert_called_once_with(
+                        low_level_patch.FDwfDeviceTriggerInfo.return_value,
+                        dev.TRIGSRC)
+
+@pytest.mark.parametrize('pin', [0, 10])
+@pytest.mark.parametrize('source', dwf.Dwf.TRIGSRC)
+def test_dwf_trigger_set(pin, source):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.Dwf()
+
+            dev.triggerSet(pin, source)
+
+            low_level_patch.FDwfDeviceTriggerSet.assert_called_once_with(dev.hdwf, pin, source)
+
+@pytest.mark.parametrize('pin', [0, 10])
+@pytest.mark.parametrize('source', dwf.Dwf.TRIGSRC)
+def test_dwf_trigger_get(pin, source):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.Dwf()
+
+            low_level_patch.FDwfDeviceTriggerGet.return_value = source
+            value = dev.triggerGet(pin)
+
+            low_level_patch.FDwfDeviceTriggerGet.assert_called_once_with(dev.hdwf, pin)
+            assert value == source
+
+def test_dwf_trigger_pc():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.Dwf()
+
+            dev.triggerPC()
+            low_level_patch.FDwfDeviceTriggerPC.assert_called_once_with(dev.hdwf)

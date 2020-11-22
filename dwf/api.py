@@ -324,12 +324,42 @@ class Dwf(object):
         _l.FDwfDeviceEnableSet(self.hdwf, enable)
 
     def triggerInfo(self):
+        '''Return the supported trigger source options for the global trigger
+        bus.
+
+        The Global trigger bus allows for multiple instruments (or devices) to
+        trigger each other.
+
+        See dwf.Dwf.TRIGSRC for a list of triggers.
+
+        Retuns:
+            Frozen set of Trigger sources.
+        '''
         return _make_set(_l.FDwfDeviceTriggerInfo(self.hdwf), self.TRIGSRC)
+
     def triggerSet(self, idxPin, trigsrc):
+        '''Set the Global trigger source to use the selected External IO Trigger
+        / trigger source.
+
+        Args:
+            idxPIn (int): External Trigger, I/O pin index.
+            trigsrc (dwf.Dwf.TRIGSRC): Trigger source selection.
+        '''
         _l.FDwfDeviceTriggerSet(self.hdwf, idxPin, trigsrc)
+
     def triggerGet(self, idxPin):
+        '''Get the trigger source set on the external trigger pin.
+
+        Args:
+            idxPIn (int): External Trigger, I/O pin index.
+
+        Returns:
+            Trigger source configured (dwf.Dwf.TRIGSRC)
+        '''
         return self.TRIGSRC(_l.FDwfDeviceTriggerGet(self.hdwf, idxPin))
+
     def triggerPC(self):
+        '''Generate one pulse on the PC trigger line'''
         _l.FDwfDeviceTriggerPC(self.hdwf)
 
 # ANALOG IN INSTRUMENT FUNCTIONS
