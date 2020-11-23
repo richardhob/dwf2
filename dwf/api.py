@@ -986,9 +986,24 @@ class DwfDigitalIO(Dwf):
 class DwfDigitalIn(Dwf):
     '''Digital Input configuration / recording (Logic Analyzer).
 
-    Example:
+    Configure Sample format and buffer size:
     >>> dev = dwf.DwfDigitalIn()
-    >>>
+    >>> dev.sampleFormatSet(8)   # Bits
+    >>> dev.buffserSizeSet(32)   # Bytes
+
+    Configure Sample Rate:
+    >>> dev.dividerSet(100)      # Divider set
+
+    Acquire and wait:
+    >>> dev.configure(False, True)
+    >>> status = dev.status(True)
+    >>> while status != dwf.Dwf.STATE.DONE:
+    ...    time.sleep(0.5)
+    ...    status = dev.status(True)
+    ...
+
+    Get results:
+    >>> data = dev.statusData(32)
 
     Args:
         idxDevice (int): Device index to open. If set to '-1', the first found
@@ -997,7 +1012,6 @@ class DwfDigitalIn(Dwf):
             be found in the Waveforms GUI / Device Manager. Default is None (ie
             use the current configuration)
     '''
-
     class ACQMODE(IntEnum):
         '''Acquisition modes'''
         SINGLE          = _l.acqmodeSingle
@@ -1011,9 +1025,16 @@ class DwfDigitalIn(Dwf):
         EXTERNAL        = _l.DwfDigitalInClockSourceExternal
 
     class SAMPLEMODE(IntEnum):
-        SIMPLE          = _l.DwfDigitalInSampleModeSimple
+        '''Sample acquisition mode.
+
+        Simple is the default, an acquires one sample per period.
+
+        Noise acquires one sample every few periods.
+
         # alternate samples: noise|sample|noise|sample|...
         # where noise is more than 1 transition between 2 samples
+        '''
+        SIMPLE          = _l.DwfDigitalInSampleModeSimple
         NOISE           = _l.DwfDigitalInSampleModeNoise
 
     def __init__(self, idxDevice=-1, idxCfg=None):
@@ -1218,7 +1239,7 @@ class DwfDigitalIn(Dwf):
         '''Get the Maximum buffer size for the Digital In Instrument.
 
         Returns:
-            Maximum buffer size as an integer.
+            Maximum buffer size as an integer (in bytes?)
         '''
         return _l.FDwfDigitalInBufferSizeInfo(self.hdwf)
 
@@ -1226,7 +1247,7 @@ class DwfDigitalIn(Dwf):
         '''Set the instrument's buffer size.
 
         Args:
-            size (int) Buffer size.
+            size (int) Buffer size (in Bytes?)
         '''
         _l.FDwfDigitalInBufferSizeSet(self.hdwf, size)
 
@@ -1234,7 +1255,7 @@ class DwfDigitalIn(Dwf):
         '''Get the instrument's buffer size.
 
         Returns:
-            Buffer size as an integer
+            Buffer size as an integer (in Bytes?)
         '''
         return _l.FDwfDigitalInBufferSizeGet(self.hdwf)
 
@@ -1449,23 +1470,32 @@ class DwfDigitalIn(Dwf):
 
 # DIGITAL OUT INSTRUMENT FUNCTIONS
 class DwfDigitalOut(Dwf):
+    '''
+
+    Args:
+        idxDevice (int): Device index to open. If set to '-1', the first found
+            device will be used. Default is '-1'.
+        idxCfg (int): Device configuration to use. The Device configuration can
+            be found in the Waveforms GUI / Device Manager. Default is None (ie
+            use the current configuration)
+    '''
 
     class OUTPUT(IntEnum):
-        PUSH_PULL = _l.DwfDigitalOutOutputPushPull
-        OPEN_DRAIN = _l.DwfDigitalOutOutputOpenDrain
-        OPEN_SOURCE = _l.DwfDigitalOutOutputOpenSource
-        TRISTATE = _l.DwfDigitalOutOutputThreeState # for custom and random
+        PUSH_PULL           = _l.DwfDigitalOutOutputPushPull
+        OPEN_DRAIN          = _l.DwfDigitalOutOutputOpenDrain
+        OPEN_SOURCE         = _l.DwfDigitalOutOutputOpenSource
+        TRISTATE            = _l.DwfDigitalOutOutputThreeState # for custom and random
 
     class TYPE(IntEnum):
-        PULSE = _l.DwfDigitalOutTypePulse
-        CUSTOM = _l.DwfDigitalOutTypeCustom
-        RANDOM = _l.DwfDigitalOutTypeRandom
+        PULSE               = _l.DwfDigitalOutTypePulse
+        CUSTOM              = _l.DwfDigitalOutTypeCustom
+        RANDOM              = _l.DwfDigitalOutTypeRandom
 
     class IDLE(IntEnum):
-        INIT = _l.DwfDigitalOutIdleInit
-        LOW = _l.DwfDigitalOutIdleLow
-        HIGH = _l.DwfDigitalOutIdleHigh
-        HiZ = _l.DwfDigitalOutIdleZet
+        INIT                = _l.DwfDigitalOutIdleInit
+        LOW                 = _l.DwfDigitalOutIdleLow
+        HIGH                = _l.DwfDigitalOutIdleHigh
+        HiZ                 = _l.DwfDigitalOutIdleZet
 
 # Control:
     def __init__(self, idxDevice=-1, idxCfg=None):
