@@ -156,3 +156,215 @@ def test_status_data(sample_format, samples, data, expected):
 
             assert value == expected
             low_level_patch.FDwfDigitalInStatusData.assert_called_once()
+
+def test_status_record():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            value = dev.statusRecord()
+
+            low_level_patch.FDwfDigitalInStatusRecord.assert_called_once_with(dev.hdwf)
+            assert value == low_level_patch.FDwfDigitalInStatusRecord.return_value
+
+def test_internal_clock_info():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            value = dev.internalClockInfo()
+
+            low_level_patch.FDwfDigitalInInternalClockInfo.assert_called_once_with(dev.hdwf)
+            assert value == low_level_patch.FDwfDigitalInInternalClockInfo.return_value
+
+@pytest.mark.parametrize('clock', dwf.DwfDigitalIn.CLOCKSOURCE)
+def test_clock_source_info(clock):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            low_level_patch.FDwflDigitalInClockSourceInfo.return_value = clock
+            value = dev.clockSourceInfo()
+
+            low_level_patch.FDwfDigitalInClockSourceInfo.assert_called_once_with(dev.hdwf)
+
+@pytest.mark.parametrize('clock', dwf.DwfDigitalIn.CLOCKSOURCE)
+def test_clock_source_set(clock):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            dev.clockSourceSet(clock)
+
+            low_level_patch.FDwfDigitalInClockSourceSet.assert_called_once_with(dev.hdwf, clock)
+
+@pytest.mark.parametrize('clock', dwf.DwfDigitalIn.CLOCKSOURCE)
+def test_clock_source_get(clock):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+            low_level_patch.FDwfDigitalInClockSourceGet.return_value = clock
+
+            value = dev.clockSourceGet()
+
+            low_level_patch.FDwfDigitalInClockSourceGet.assert_called_once_with(dev.hdwf)
+            assert value == clock
+
+def test_divider_info():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            value = dev.dividerInfo()
+
+            low_level_patch.FDwfDigitalInDividerInfo.assert_called_once_with(dev.hdwf)
+            assert value == low_level_patch.FDwfDigitalInDividerInfo.return_value
+
+@pytest.mark.parametrize('divider', [1, 10])
+def test_divider_set(divider):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+            dev.dividerSet(divider)
+
+            low_level_patch.FDwfDigitalInDividerSet.assert_called_once_with(dev.hdwf, divider)
+
+def test_divider_get():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            value = dev.dividerGet()
+
+            low_level_patch.FDwfDigitalInDividerGet.assert_called_once_with(dev.hdwf)
+            assert value == low_level_patch.FDwfDigitalInDividerGet.return_value
+
+def test_bits_info():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            value = dev.bitsInfo()
+
+            low_level_patch.FDwfDigitalInBitsInfo.assert_called_once_with(dev.hdwf)
+            assert value == low_level_patch.FDwfDigitalInBitsInfo.return_value
+
+@pytest.mark.parametrize('bits', [8, 16, 32])
+def test_sample_format_set(bits):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            dev.sampleFormatSet(bits)
+
+            low_level_patch.FDwfDigitalInSampleFormatSet.assert_called_once_with(dev.hdwf, bits)
+
+def test_sample_format_get():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            value = dev.sampleFormatGet()
+
+            low_level_patch.FDwfDigitalInSampleFormatGet.assert_called_once_with(dev.hdwf)
+            assert value == low_level_patch.FDwfDigitalInSampleFormatGet.return_value
+
+def test_buffer_size_info():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            value = dev.bufferSizeInfo()
+
+            low_level_patch.FDwfDigitalInBufferSizeInfo.assert_called_once_with(dev.hdwf)
+            assert value == low_level_patch.FDwfDigitalInBufferSizeInfo.return_value
+
+@pytest.mark.parametrize('size', [0, 100])
+def test_buffer_size_set(size):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            dev.bufferSizeSet(size)
+
+            low_level_patch.FDwfDigitalInBufferSizeSet.assert_called_once_with(dev.hdwf, size)
+
+def test_buffer_size_get():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            value = dev.bufferSizeGet()
+
+            low_level_patch.FDwfDigitalInBufferSizeGet.assert_called_once_with(dev.hdwf)
+            assert value == low_level_patch.FDwfDigitalInBufferSizeGet.return_value
+
+@pytest.mark.parametrize('sample_mode', dwf.DwfDigitalIn.SAMPLEMODE)
+def test_sample_mode_info(sample_mode):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            low_level_patch.FDwfDigitalInSampleModeInfo.return_value == sample_mode
+
+            value = dev.sampleModeInfo()
+
+            low_level_patch.FDwfDigitalInSampleModeInfo.assert_called_once_with(dev.hdwf)
+
+@pytest.mark.parametrize('sample_mode', dwf.DwfDigitalIn.SAMPLEMODE)
+def test_sample_mode_set(sample_mode):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            dev.sampleModeSet(sample_mode)
+
+            low_level_patch.FDwfDigitalInSampleModeSet.assert_called_once_with(dev.hdwf, sample_mode)
+
+@pytest.mark.parametrize('sample_mode', dwf.DwfDigitalIn.SAMPLEMODE)
+def test_sample_mode_get(sample_mode):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            low_level_patch.FDwfDigitalInSampleModeGet.return_value = sample_mode
+
+            value = dev.sampleModeGet()
+
+            low_level_patch.FDwfDigitalInSampleModeGet.assert_called_once_with(dev.hdwf)
+            assert value == sample_mode
+
+@pytest.mark.parametrize('acq_mode', dwf.DwfDigitalIn.ACQMODE)
+def test_acq_mode_info(acq_mode):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            low_level_patch.FDwfDigitalInAcquisitionModeInfo.return_value == acq_mode
+
+            value = dev.acquisitionModeInfo()
+
+            low_level_patch.FDwfDigitalInAcquisitionModeInfo.assert_called_once_with(dev.hdwf)
+
+@pytest.mark.parametrize('acq_mode', dwf.DwfDigitalIn.ACQMODE)
+def test_acq_mode_set(acq_mode):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            dev.acquisitionModeSet(acq_mode)
+
+            low_level_patch.FDwfDigitalInAcquisitionModeSet.assert_called_once_with(dev.hdwf, acq_mode)
+
+@pytest.mark.parametrize('acq_mode', dwf.DwfDigitalIn.ACQMODE)
+def test_acq_mode_get(acq_mode):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            low_level_patch.FDwfDigitalInAcquisitionModeGet.return_value = acq_mode
+
+            value = dev.acquisitionModeGet()
+
+            low_level_patch.FDwfDigitalInAcquisitionModeGet.assert_called_once_with(dev.hdwf)
+            assert value == acq_mode

@@ -1006,6 +1006,7 @@ class DwfDigitalIn(Dwf):
         RECORD          = _l.acqmodeRecord
 
     class CLOCKSOURCE(IntEnum):
+        '''Digital In instrument clock sources.'''
         INTERNAL        = _l.DwfDigitalInClockSourceInternal
         EXTERNAL        = _l.DwfDigitalInClockSourceExternal
 
@@ -1118,57 +1119,194 @@ class DwfDigitalIn(Dwf):
         return data
 
     def statusRecord(self):
+        '''Get the number of samples available, lost, or corrupted.
+
+        Returns:
+            Tuple of integers (Available, Lost, Corrupted)
+        '''
         return _l.FDwfDigitalInStatusRecord(self.hdwf)
 
-# Acquistion configuration:
     def internalClockInfo(self):
+        '''Get the internal clock frequency.
+
+        Returns:
+            Internal Clock Frequency (as an integer)
+        '''
         return _l.FDwfDigitalInInternalClockInfo(self.hdwf)
 
     def clockSourceInfo(self):
+        '''Find the supported clock sources for the Digital In isntrument.
+
+        Returns:
+            A set of device supported clocks (dwf.DwfDigitalIn.CLOCKSOURCE)
+        '''
         return _make_set(
             _l.FDwfDigitalInClockSourceInfo(self.hdwf), self.CLOCKSOURCE)
+
     def clockSourceSet(self, clock_source):
+        '''Set the clock source to the selected clock.
+
+        Args:
+            clock_source (dwf.DwfDigitalIn.CLOCKSOURCE): Clock source to use.
+                Options are:
+                - CLOCKSOURCE.INTERNAL
+                - CLOCKSOURCE.EXTERNAL
+        '''
         _l.FDwfDigitalInClockSourceSet(self.hdwf, clock_source)
-    def clockSourceGet(self, clock_source):
+
+    def clockSourceGet(self):
+        '''Get the currently set clock source.
+
+        Returns:
+            dwf.DwfDigitalIn.CLOCKSOURCE
+        '''
         return self.CLOCKSOURCE(_l.FDwfDigitalInClockSourceGet(self.hdwf))
 
     def dividerInfo(self):
+        '''Get the instrument's maximum supported clock divider (determines the
+        sample rate.
+
+        Returns:
+            Maximum Divider as an integer.
+        '''
         return _l.FDwfDigitalInDividerInfo(self.hdwf)
+
     def dividerSet(self, div):
+        '''Set the instrument's clock divider.
+
+        Args:
+            div (int): Clock divider.
+        '''
         _l.FDwfDigitalInDividerSet(self.hdwf, div)
-    def dividerGet(self, div):
+
+    def dividerGet(self):
+        '''Get the currently set clock divider.
+
+        Returns:
+            Clock divider as an integer.
+        '''
         return _l.FDwfDigitalInDividerGet(self.hdwf)
 
     def bitsInfo(self):
-        '''Returns the number of Digital In bits'''
+        '''Get the instruments bit format.
+
+        Returns:
+            The number of Digital In bits (8, 16, 32)
+        '''
         return _l.FDwfDigitalInBitsInfo(self.hdwf)
+
     def sampleFormatSet(self, bits):
-        '''valid options 8/16/32'''
+        '''Set the instrument bit format.
+
+        Args:
+            bits (int): Bit format. Valid options are:
+                - 8
+                - 16
+                - 32
+        '''
         _l.FDwfDigitalInSampleFormatSet(self.hdwf, bits)
+
     def sampleFormatGet(self):
+        '''Get the instrument's bit format.
+
+        Returns:
+            Bit format as an integer (8, 16, 32)
+        '''
         return _l.FDwfDigitalInSampleFormatGet(self.hdwf)
 
     def bufferSizeInfo(self):
+        '''Get the Maximum buffer size for the Digital In Instrument.
+
+        Returns:
+            Maximum buffer size as an integer.
+        '''
         return _l.FDwfDigitalInBufferSizeInfo(self.hdwf)
+
     def bufferSizeSet(self, size):
+        '''Set the instrument's buffer size.
+
+        Args:
+            size (int) Buffer size.
+        '''
         _l.FDwfDigitalInBufferSizeSet(self.hdwf, size)
-    def bufferSizeGet(self, size):
+
+    def bufferSizeGet(self):
+        '''Get the instrument's buffer size.
+
+        Returns:
+            Buffer size as an integer
+        '''
         return _l.FDwfDigitalInBufferSizeGet(self.hdwf)
 
     def sampleModeInfo(self):
+        '''Get the support sample modes of the instrument.
+
+        Sample modes are:
+
+        - dwf.DwfDigitalIn.SAMPLEMODE.SIMPLE = store one sample on every clock
+          divider pulse
+        - dwf.DwfDigitalIn.SAMPLEMODE.NOISE = store alternating noise and sample
+          values, where noise is more than one transition between two samples.
+          (available when clock divider > 1)
+
+        Returns:
+            Supported sample modes as a set of enums
+        '''
         return _make_set(
             _l.FDwfDigitalInSampleModeInfo(self.hdwf), self.SAMPLEMODE)
+
     def sampleModeSet(self, sample_mode):
+        '''Set the instrument's sample mode.
+
+        Args:
+            sample_mode (dwf.DwfDigitalIn.SAMPLEMODE): SIMPLE or NOISE.
+        '''
         _l.FDwfDigitalInSampleModeSet(self.hdwf, sample_mode)
+
     def sampleModeGet(self):
+        '''Get the instrument's sample mode.
+
+        Returns:
+            dwf.DwfDigitalIn.SAMPLEMODE (SIMPLE or NOISE)
+        '''
         return self.SAMPLEMODE(_l.FDwfDigitalInSampleModeGet(self.hdwf))
 
     def acquisitionModeInfo(self):
+        '''Get the instrument's supported acquisition modes.
+
+        The valid acquisition modes are:
+
+        - dwf.DwfDigitalIn.ACQMODE.SINGLE = Perform a single buffer acquisition
+
+        - dwf.DwfDigitalIn.ACQMODE.SCANSHIFT = Perform a continuous scan in a
+          FIFO style. The trigger setting is ignored.
+
+        - dwf.DwfDigitalIn.ACQMODE.SCANSCREEN = Perform a continuous acquisition
+          circularly writing samples into the buffer. The trigger setting is
+          ignored.
+
+        Returns:
+            dwf.DwfDigitalIn.ACQMODE settings as a frozen set (SINGLE,
+            SCANSHIFT, SCANSCREEN)
+        '''
         return _make_set(
             _l.FDwfDigitalInAcquisitionModeInfo(self.hdwf), self.ACQMODE)
+
     def acquisitionModeSet(self, acqmode):
+        '''Set the acquisition mode.
+
+        Args:
+            acqmode (dwf.DwfDigitalIn.ACQMODE): Acquisition mode (SINGLE,
+            SCANSCREEN, SCANSHIFT)
+        '''
         _l.FDwfDigitalInAcquisitionModeSet(self.hdwf, acqmode)
+
     def acquisitionModeGet(self):
+        '''Get the currently set acquisition mode.
+
+        Returns:
+            dwf.DwfDigtialIn.ACQMODE set (SINGLE, SCANSCREEN, or SCANSHIFT)
+        '''
         return self.ACQMODE(_l.FDwfDigitalInAcquisitionModeGet(self.hdwf))
 
 # Trigger configuration:
