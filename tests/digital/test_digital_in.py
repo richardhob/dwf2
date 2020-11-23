@@ -368,3 +368,128 @@ def test_acq_mode_get(acq_mode):
 
             low_level_patch.FDwfDigitalInAcquisitionModeGet.assert_called_once_with(dev.hdwf)
             assert value == acq_mode
+
+@pytest.mark.parametrize('trig_src', dwf.DwfDigitalIn.TRIGSRC)
+def test_trig_src_info(trig_src):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            low_level_patch.FDwfDigitalInTriggerSourceInfo.return_value == trig_src
+
+            value = dev.triggerSourceInfo()
+
+            low_level_patch.FDwfDigitalInTriggerSourceInfo.assert_called_once_with(dev.hdwf)
+
+@pytest.mark.parametrize('trig_src', dwf.DwfDigitalIn.TRIGSRC)
+def test_trig_src_set(trig_src):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            dev.triggerSourceSet(trig_src)
+
+            low_level_patch.FDwfDigitalInTriggerSourceSet.assert_called_once_with(dev.hdwf, trig_src)
+
+@pytest.mark.parametrize('trig_src', dwf.DwfDigitalIn.TRIGSRC)
+def test_trig_src_get(trig_src):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            low_level_patch.FDwfDigitalInTriggerSourceGet.return_value = trig_src
+
+            value = dev.triggerSourceGet()
+
+            low_level_patch.FDwfDigitalInTriggerSourceGet.assert_called_once_with(dev.hdwf)
+            assert value == trig_src
+
+def test_trigger_position_info():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            value = dev.triggerPositionInfo()
+
+            low_level_patch.FDwfDigitalInTriggerPositionInfo.assert_called_once_with(dev.hdwf)
+            assert value == low_level_patch.FDwfDigitalInTriggerPositionInfo.return_value
+
+@pytest.mark.parametrize('samples', [1, 100])
+def test_trigger_position_set(samples):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            dev.triggerPositionSet(samples)
+
+            low_level_patch.FDwfDigitalInTriggerPositionSet.assert_called_once_with(dev.hdwf, samples)
+
+def test_trigger_position_get():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            value = dev.triggerPositionGet()
+
+            low_level_patch.FDwfDigitalInTriggerPositionGet.assert_called_once_with(dev.hdwf)
+            assert value == low_level_patch.FDwfDigitalInTriggerPositionGet.return_value
+
+def test_trigger_auto_timeout_info():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            value = dev.triggerAutoTimeoutInfo()
+
+            low_level_patch.FDwfDigitalInTriggerAutoTimeoutInfo.assert_called_once_with(dev.hdwf)
+            assert value == low_level_patch.FDwfDigitalInTriggerAutoTimeoutInfo.return_value
+
+@pytest.mark.parametrize('value', [0, 100])
+def test_trigger_auto_timeout_set(value):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            dev.triggerAutoTimeoutSet(value)
+
+            low_level_patch.FDwfDigitalInTriggerAutoTimeoutSet.assert_called_once_with(dev.hdwf, value)
+
+def test_trigger_auto_timeout_get():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            value = dev.triggerAutoTimeoutGet()
+
+            low_level_patch.FDwfDigitalInTriggerAutoTimeoutGet.assert_called_once_with(dev.hdwf)
+            assert value == low_level_patch.FDwfDigitalInTriggerAutoTimeoutGet.return_value
+
+def test_trigger_info():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+            value = dev.triggerInfo()
+
+            low_level_patch.FDwfDigitalInTriggerInfo.assert_called_once_with(dev.hdwf)
+            assert value == low_level_patch.FDwfDigitalInTriggerInfo.return_value
+
+@pytest.mark.parametrize('triggers', [(1, 2, 3, 4)])
+def test_trigger_set(triggers):
+    (low_level, high_level, rising_edge, falling_edge) = triggers
+
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+
+            dev.triggerSet(low_level, high_level, rising_edge, falling_edge)
+
+            low_level_patch.FDwfDigitalInTriggerSet.assert_called_once_with(dev.hdwf, low_level, high_level, rising_edge, falling_edge)
+
+def test_trigger_get():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalIn()
+            value = dev.triggerGet()
+
+            low_level_patch.FDwfDigitalInTriggerGet.assert_called_once_with(dev.hdwf)
+            assert value == low_level_patch.FDwfDigitalInTriggerGet.return_value

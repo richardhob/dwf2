@@ -237,7 +237,7 @@ class Dwf(object):
     DEVICE_NONE             = _l.hdwfNone
 
     class TRIGSRC(IntEnum):
-        '''Trigger source'''
+        '''Trigger sources'''
         NONE                = _l.trigsrcNone
         PC                  = _l.trigsrcPC
         DETECTOR_ANALOG_IN  = _l.trigsrcDetectorAnalogIn
@@ -1309,38 +1309,142 @@ class DwfDigitalIn(Dwf):
         '''
         return self.ACQMODE(_l.FDwfDigitalInAcquisitionModeGet(self.hdwf))
 
-# Trigger configuration:
     def triggerSourceInfo(self):
-        '''use IsBitSet'''
+        '''Supported trigger options for the DwfDigitalIn instrument.
+
+        Returns:
+            Available triggers for this instrument (dwf.Dwf.TRIGSRC)
+        '''
         return _make_set(
             _l.FDwfDigitalInTriggerSourceInfo(self.hdwf), self.TRIGSRC)
+
     def triggerSourceSet(self, trigsrc):
+        '''Set the instrument trigger source.
+
+        Args:
+            trigsrc (dwf.Dwf.TRIGSRC): Trigger source to use.
+        '''
         _l.FDwfDigitalInTriggerSourceSet(self.hdwf, trigsrc)
+
     def triggerSourceGet(self):
+        '''Get the currently set instrument trigger source.
+
+        Returns:
+            Set trigger source as an enum (dwf.Dwf.TRIGSRC)
+        '''
         return self.TRIGSRC(_l.FDwfDigitalInTriggerSourceGet(self.hdwf))
 
     def triggerPositionInfo(self):
+        '''Get the maximum value for the trigger position in samples.
+
+        This can be greater than the buffer size.
+
+        Returns:
+            Maximum trigger position in samples as an integer.
+        '''
         return _l.FDwfDigitalInTriggerPositionInfo(self.hdwf)
+
     def triggerPositionSet(self, samples_after_trigger):
+        '''Set the trigger position in samples.
+
+        Args:
+            samples_after_trigger (int): Number of samples to wait after the
+                trigger to start acquiring.
+        '''
         _l.FDwfDigitalInTriggerPositionSet(self.hdwf, samples_after_trigger)
+
     def triggerPositionGet(self):
+        '''Get the currently set trigger position.
+
+        Returns:
+            Number of samples to wait after trigger to acquire.
+        '''
         return _l.FDwfDigitalInTriggerPositionGet(self.hdwf)
 
     def triggerAutoTimeoutInfo(self):
+        '''Get the minimum and maximum auto trigger timeout values, as well as
+        the number of adjustable steps.
+
+        The acquisition is autotriggered when the specified time elapses.
+
+        When this is set to '0' the timeout is disabled, and the acquisition
+        proceeds as normal.
+
+        Returns:
+            (Min, Max, Step) auto trigger timeout values in seconds
+        '''
         return _l.FDwfDigitalInTriggerAutoTimeoutInfo(self.hdwf)
+
     def triggerAutoTimeoutSet(self, secTimeout):
+        '''Set the Auto trigger timeout.
+
+        The acquisition is autotriggered when the specified time elapses.
+
+        When this is set to '0' the timeout is disabled, and the acquisition
+        proceeds as normal.
+
+        Args:
+            secTimeout (int): Timeout as a float in seconds.
+        '''
         _l.FDwfDigitalInTriggerAutoTimeoutSet(self.hdwf, secTimeout)
+
     def triggerAutoTimeoutGet(self):
+        '''Get the instruments auto trigger timeout.
+
+        Returns:
+            Auto trigger timeout as a float in seconds.
+        '''
         return _l.FDwfDigitalInTriggerAutoTimeoutGet(self.hdwf)
 
     def triggerInfo(self):
+        '''Get the device supported instrument triggers.
+
+        Each bit of each returned integer represents a Digital In pin. Each pins
+        can support one of the four trigger types:
+
+        - Trigger on Low Logic Level
+        - Trigger on High Logic Level
+        - Trigger on Rising Edge
+        - Trigger on Falling Edge
+
+        Returns:
+            Four integers (Level Low, Level High, Rising Edge, Falling Edge).
+        '''
         return _l.FDwfDigitalInTriggerInfo(self.hdwf)
-    # the logic for trigger bits: Low and High and (Rise or Fall)
-    # bits set in Rise and Fall means any edge
+
     def triggerSet(self, level_low, level_high, edge_rise, edge_fall):
-        _l.FDwfDigitalInTriggerSet(
-            self.hdwf, level_low, level_high, edge_rise, edge_fall)
+        '''Configure the Digital Trigger detector for each DigitalIn pin.
+
+        Configure DIO 0 for Either Edge:
+        >>> dev = dwf.DwfDigitalIn()
+        >>> dev.triggerSet(0x00, 0x00, 0x01, 0x01)
+
+        Configure DIO 1 for Logic Level Low:
+        >>> dev = dwf.DwfDigitalIn()
+        >>> dev.triggerSet(0x02, 0x00, 0x00, 0x00)
+
+        Configure DIO0 for Low, DIO1 for High, DIO2 for Rising, DIO3
+        for falling:
+        >>> dev = dwf.DwfDigitalIn()
+        >>> dev.triggerSet(0x01, 0x02, 0x04, 0x08)
+
+        Args:
+            level_low (int): Pins to trigger on logic level low
+            level_high (int): Pins to trigger on logic level high
+            edge_rise (int): Pins to trigger on a rising edge
+            edge_fall (int): Pins to trigger on a falling edge
+        '''
+        _l.FDwfDigitalInTriggerSet(self.hdwf, level_low, level_high, edge_rise, edge_fall)
+
     def triggerGet(self):
+        '''Get the instrument's configured digital trigger.
+
+        Each integer's bit represents a Digital In Pin, for one of the triggers.
+
+        Returns:
+            Tuple of configured triggers (Logic Level Low, Logic Level High,
+            Rising Edge, Falling Edge)
+        '''
         return _l.FDwfDigitalInTriggerGet(self.hdwf)
 
 # DIGITAL OUT INSTRUMENT FUNCTIONS
