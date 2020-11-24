@@ -1447,8 +1447,19 @@ class DwfDigitalIn(Dwf):
         '''
         return _l.FDwfDigitalInTriggerGet(self.hdwf)
 
-# DIGITAL OUT INSTRUMENT FUNCTIONS
 class DwfDigitalOut(Dwf):
+    '''Digital Pattern generation instrument controls / functionality.
+
+    Example:
+    >>> dev = dwf.DwfDigitalOut()
+
+    Args:
+        idxDevice (int): Device index to open. If set to '-1', the first found
+            device will be used. Default is '-1'.
+        idxCfg (int): Device configuration to use. The Device configuration can
+            be found in the Waveforms GUI / Device Manager. Default is None (ie
+            use the current configuration)
+    '''
 
     class OUTPUT(IntEnum):
         PUSH_PULL = _l.DwfDigitalOutOutputPushPull
@@ -1467,46 +1478,141 @@ class DwfDigitalOut(Dwf):
         HIGH = _l.DwfDigitalOutIdleHigh
         HiZ = _l.DwfDigitalOutIdleZet
 
-# Control:
     def __init__(self, idxDevice=-1, idxCfg=None):
         if isinstance(idxDevice, Dwf):
             self.hdwf = idxDevice.hdwf
         else:
             super(DwfDigitalOut, self).__init__(idxDevice, idxCfg)
+
     def reset(self, parent=False):
-        if parent: super(DwfDigitalOut, self).reset()
+        ''' Reset all the DigitalOut instrument parameters to default values,
+        set the output to zero (tri-state), and configures the DigitalOut
+        instrument.
+
+        Args:
+            parent (bool): If True, use the Dwf Reset instead of the Digital IO
+                reset. Default is False.
+        '''
+        if parent:
+            super(DwfDigitalOut, self).reset()
         return _l.FDwfDigitalOutReset(self.hdwf)
+
     def configure(self, start):
+        '''Start or stop the pattern generation.
+
+        Args:
+            start (bool): If True, start pattern generation. If False, stop the
+                pattern generation.
+        '''
         _l.FDwfDigitalOutConfigure(self.hdwf, start)
+
     def status(self):
+        '''Get the current state of the instrument.
+
+        Returns:
+            Instrument state as an enum (dwf.Dwf.STATE)
+        '''
         return self.STATE(_l.FDwfDigitalOutStatus(self.hdwf))
 
-# Configuration:
     def internalClockInfo(self):
+        '''Get the instruments internal clock frequency.
+
+        Returns:
+            Internal clock frequency as an integer.
+        '''
         return _l.FDwfDigitalOutInternalClockInfo(self.hdwf)
 
     def triggerSourceInfo(self):
+        '''List the supported trigger source options for the instument.
+
+        Returns:
+            Frozen set of supported Trigger sources (dwf.Dwf.TRIGSRC)
+        '''
         return _make_set(
             _l.FDwfDigitalOutTriggerSourceInfo(self.hdwf), self.TRIGSRC)
+
     def triggerSourceSet(self, trigsrc):
+        '''Set the instrument trigger source.
+
+        Args:
+            trigsrc (dwf.Dwf.TRIGSRC): Trigger source to start pattern
+                generation.
+        '''
         _l.FDwfDigitalOutTriggerSourceSet(self.hdwf, trigsrc)
-    def triggerSourceGet(self, trigsrc):
+
+    def triggerSourceGet(self):
+        '''Get the instrument trigger source.
+
+        Returns:
+            The set trigger source (dwf.Dwf.TRIGSRC)
+        '''
         return self.TRIGSRC(_l.FDwfDigitalOutTriggerSourceGet(self.hdwf))
 
     def runInfo(self):
+        '''Get the supported run length of the instrument in seconds.
+
+        Non zero values represent valid possible run lengths for the DigialOut
+        instrument.
+
+        A value of '0' represents continuous mode.
+
+        Returns:
+            (Min, Max) Run length in seconds (float)
+        '''
         return _l.FDwfDigitalOutRunInfo(self.hdwf)
+
     def runSet(self, secRun):
+        '''Set the run time of the instrument.
+
+        Args:
+            secRun (float): Run time in seconds as a float. If 0, the outptu
+                will be configured for continuous mode.
+        '''
         _l.FDwfDigitalOutRunSet(self.hdwf, secRun)
+
     def runGet(self):
+        '''Get the configured instrument run time.
+
+        Returns:
+            Instrument run time as a float. Note: a value of '0' means
+            continuous mode.
+        '''
         return _l.FDwfDigitalOutRunGet(self.hdwf)
+
     def runStatus(self):
+        '''Get the remaining time for the instrument from the current pattern
+        generation.
+
+        Returns:
+            Remaining run time as a float.
+        '''
         return _l.FDwfDigitalOutRunStatus(self.hdwf)
 
     def waitInfo(self):
+        '''Get information about the after trigger wait time for the instrument.
+
+        When a trigger event occurs, the instrument will wait an amount of time
+        before pattern generation. The wait time here is that time.
+
+        Returns:
+            (Min, Max) wait time in seconds as a float.
+        '''
         return _l.FDwfDigitalOutWaitInfo(self.hdwf)
+
     def waitSet(self, secWait):
+        '''Set the after trigger wait time for the instrument.
+
+        Args:
+            secWait (float): After trigger wait time in seconds
+        '''
         _l.FDwfDigitalOutWaitSet(self.hdwf, secWait)
+
     def waitGet(self):
+        '''Get the configured trigger wait time for the instrument.
+
+        Returns:
+            After trigger wait time in second.
+        '''
         return _l.FDwfDigitalOutWaitGet(self.hdwf)
 
     def repeatInfo(self):
