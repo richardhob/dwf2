@@ -200,4 +200,349 @@ def test_wait_get():
             low_level_patch.FDwfDigitalOutWaitGet.assert_called_once_with(dev.hdwf)
             assert value == low_level_patch.FDwfDigitalOutWaitGet.return_value
 
+def test_repeat_info():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
 
+            value = dev.repeatInfo()
+
+            low_level_patch.FDwfDigitalOutRepeatInfo.assert_called_once_with(dev.hdwf)
+            assert value == low_level_patch.FDwfDigitalOutRepeatInfo.return_value
+
+@pytest.mark.parametrize('count', [0, 100])
+def test_repeat_set(count):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            dev.repeatSet(count)
+
+            low_level_patch.FDwfDigitalOutRepeatSet.assert_called_once_with(dev.hdwf, count)
+
+def test_repeat_get():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            value = dev.repeatGet()
+            low_level_patch.FDwfDigitalOutRepeatGet.assert_called_once_with(dev.hdwf)
+
+            assert value == low_level_patch.FDwfDigitalOutRepeatGet.return_value
+
+def test_repeat_status():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            value = dev.repeatStatus()
+            low_level_patch.FDwfDigitalOutRepeatStatus.assert_called_once_with(dev.hdwf)
+
+            assert value == low_level_patch.FDwfDigitalOutRepeatStatus.return_value
+
+@pytest.mark.parametrize('repeat', [False, True])
+def test_repeat_trigger_set(repeat):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            dev.repeatTriggerSet(repeat)
+
+            low_level_patch.FDwfDigitalOutRepeatTriggerSet.assert_called_once_with(dev.hdwf, repeat)
+
+@pytest.mark.parametrize('repeat', [False, True])
+def test_repeat_trigger_get(repeat):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            low_level_patch.FDwfDigitalOutRepeatTriggerGet.return_value = repeat
+
+            value = dev.repeatTriggerGet()
+
+            low_level_patch.FDwfDigitalOutRepeatTriggerGet.assert_called_once_with(dev.hdwf)
+            assert value == repeat
+
+def test_channel_count():
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            value = dev.channelCount()
+
+            low_level_patch.FDwfDigitalOutCount.assert_called_once_with(dev.hdwf)
+            assert value == low_level_patch.FDwfDigitalOutCount.return_value
+
+@pytest.mark.parametrize('channel', [0, 21])
+@pytest.mark.parametrize('state', [False, True])
+def test_enable_set(channel, state):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            dev.enableSet(channel, state)
+
+            low_level_patch.FDwfDigitalOutEnableSet.assert_called_with(dev.hdwf, channel, state)
+
+@pytest.mark.parametrize('channel', [0, 21])
+@pytest.mark.parametrize('state', [False, True])
+def test_enable_get(channel, state):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            low_level_patch.FDwfDigitalOutEnableGet.return_value = state
+
+            value = dev.enableGet(channel)
+            low_level_patch.FDwfDigitalOutEnableGet.assert_called_once_with(dev.hdwf, channel)
+
+            assert value == state
+
+@pytest.mark.parametrize('channel', [0, 21])
+def test_output_info(channel):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            dev.outputInfo(channel)
+
+            low_level_patch.FDwfDigitalOutOutputInfo.assert_called_once_with(dev.hdwf, channel)
+
+@pytest.mark.parametrize('channel', [0, 21])
+@pytest.mark.parametrize('output_type', dwf.DwfDigitalOut.OUTPUT)
+def test_output_set(channel, output_type):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            dev.outputSet(channel, output_type)
+
+            low_level_patch.FDwfDigitalOutOutputSet.assert_called_once_with(dev.hdwf, channel, output_type)
+
+@pytest.mark.parametrize('channel', [0, 21])
+@pytest.mark.parametrize('output_type', dwf.DwfDigitalOut.OUTPUT)
+def test_output_get(channel, output_type):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            low_level_patch.FDwfDigitalOutOutputGet.return_value = output_type
+
+            value = dev.outputGet(channel)
+
+            low_level_patch.FDwfDigitalOutOutputGet.assert_called_once_with(dev.hdwf, channel)
+            assert value == output_type
+
+@pytest.mark.parametrize('channel', [0, 21])
+def test_type_info(channel):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            dev.typeInfo(channel)
+
+            low_level_patch.FDwfDigitalOutTypeInfo.assert_called_once_with(dev.hdwf, channel)
+
+@pytest.mark.parametrize('channel', [0, 21])
+@pytest.mark.parametrize('channel_type', dwf.DwfDigitalOut.TYPE)
+def test_type_set(channel, channel_type):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            dev.typeSet(channel, channel_type)
+
+            low_level_patch.FDwfDigitalOutTypeSet.assert_called_once_with(dev.hdwf, channel, channel_type)
+
+@pytest.mark.parametrize('channel', [0, 21])
+@pytest.mark.parametrize('channel_type', dwf.DwfDigitalOut.TYPE)
+def test_type_get(channel, channel_type):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            low_level_patch.FDwfDigitalOutTypeGet.return_value = channel_type
+
+            value = dev.typeGet(channel)
+
+            low_level_patch.FDwfDigitalOutTypeGet.assert_called_once_with(dev.hdwf, channel)
+            assert value == channel_type
+
+@pytest.mark.parametrize('channel', [0, 21])
+def test_idle_info(channel):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            dev.idleInfo(channel)
+
+            low_level_patch.FDwfDigitalOutIdleInfo.assert_called_once_with(dev.hdwf, channel)
+
+@pytest.mark.parametrize('channel', [0, 21])
+@pytest.mark.parametrize('idle_state', dwf.DwfDigitalOut.IDLE)
+def test_idle_set(channel, idle_state):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            dev.idleSet(channel, idle_state)
+
+            low_level_patch.FDwfDigitalOutIdleSet.assert_called_once_with(dev.hdwf, channel, idle_state)
+
+@pytest.mark.parametrize('channel', [0, 21])
+@pytest.mark.parametrize('idle_state', dwf.DwfDigitalOut.IDLE)
+def test_idle_get(channel, idle_state):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            low_level_patch.FDwfDigitalOutIdleGet.return_value = idle_state
+
+            value = dev.idleGet(channel)
+
+            low_level_patch.FDwfDigitalOutIdleGet.assert_called_once_with(dev.hdwf, channel)
+            assert value == idle_state
+
+@pytest.mark.parametrize('channel', [0, 21])
+def test_divider_info(channel):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            dev.dividerInfo(channel)
+
+            low_level_patch.FDwfDigitalOutDividerInfo.assert_called_once_with(dev.hdwf, channel)
+
+@pytest.mark.parametrize('channel', [0, 21])
+@pytest.mark.parametrize('divider', [12, 1])
+def test_divider_init_set(channel, divider):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            dev.dividerInitSet(channel, divider)
+
+            low_level_patch.FDwfDigitalOutDividerInitSet.assert_called_once_with(dev.hdwf, channel, divider)
+
+@pytest.mark.parametrize('channel', [0, 21])
+@pytest.mark.parametrize('divider', [12, 1])
+def test_divider_init_get(channel, divider):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            low_level_patch.FDwfDigitalOutDividerInitGet.return_value = divider
+
+            value = dev.dividerInitGet(channel)
+
+            low_level_patch.FDwfDigitalOutDividerInitGet.assert_called_once_with(dev.hdwf, channel)
+            assert value == divider
+
+@pytest.mark.parametrize('channel', [0, 21])
+@pytest.mark.parametrize('divider', [12, 1])
+def test_divider_set(channel, divider):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            dev.dividerSet(channel, divider)
+
+            low_level_patch.FDwfDigitalOutDividerSet.assert_called_once_with(dev.hdwf, channel, divider)
+
+@pytest.mark.parametrize('channel', [0, 21])
+@pytest.mark.parametrize('divider', [12, 1])
+def test_divider_get(channel, divider):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            low_level_patch.FDwfDigitalOutDividerGet.return_value = divider
+
+            value = dev.dividerGet(channel)
+
+            low_level_patch.FDwfDigitalOutDividerGet.assert_called_once_with(dev.hdwf, channel)
+            assert value == divider
+
+@pytest.mark.parametrize('channel', [0, 21])
+def test_counter_info(channel):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            dev.counterInfo(channel)
+
+            low_level_patch.FDwfDigitalOutCounterInfo.assert_called_once_with(dev.hdwf, channel)
+
+@pytest.mark.parametrize('channel', [0, 21])
+@pytest.mark.parametrize('state', [False, True])
+@pytest.mark.parametrize('value', [0, 0xFF])
+def test_counter_init_set(channel, value, state):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            dev.counterInitSet(channel, state, value)
+
+            low_level_patch.FDwfDigitalOutCounterInitSet.assert_called_once_with(dev.hdwf, channel, state, value)
+
+@pytest.mark.parametrize('channel', [0, 21])
+@pytest.mark.parametrize('counter', [12, 1])
+def test_counter_init_get(channel, counter):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            low_level_patch.FDwfDigitalOutCounterInitGet.return_value = counter
+
+            value = dev.counterInitGet(channel)
+
+            low_level_patch.FDwfDigitalOutCounterInitGet.assert_called_once_with(dev.hdwf, channel)
+            assert value == counter
+
+@pytest.mark.parametrize('channel', [0, 21])
+@pytest.mark.parametrize('low', [12, 2])
+@pytest.mark.parametrize('high', [0, 1])
+def test_counter_set(channel, low, high):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            dev.counterSet(channel, low, high)
+
+            low_level_patch.FDwfDigitalOutCounterSet.assert_called_once_with(dev.hdwf, channel, low, high)
+
+@pytest.mark.parametrize('channel', [0, 21])
+@pytest.mark.parametrize('counter', [12, 1])
+def test_counter_get(channel, counter):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            low_level_patch.FDwfDigitalOutCounterGet.return_value = counter
+
+            value = dev.counterGet(channel)
+
+            low_level_patch.FDwfDigitalOutCounterGet.assert_called_once_with(dev.hdwf, channel)
+            assert value == counter
+
+@pytest.mark.parametrize('channel', [0, 21])
+def test_data_info(channel):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            value = dev.dataInfo(channel)
+
+            low_level_patch.FDwfDigitalOutDataInfo.assert_called_once_with(dev.hdwf, channel)
+            assert value == low_level_patch.FDwfDigitalOutDataInfo.return_value
+
+@pytest.mark.parametrize('channel', [0, 21])
+@pytest.mark.parametrize('bits', [0, 1, 2, 3])
+def test_data_set(channel, bits):
+    with unittest.mock.patch.object(dwf.api, "_HDwf") as hdwf_patch:
+        with unittest.mock.patch.object(dwf.api, '_l') as low_level_patch:
+            dev = dwf.DwfDigitalOut()
+
+            dev.dataSet(channel, bits)
+
+            low_level_patch.FDwfDigitalOutDataSet.assert_called_once_with(dev.hdwf, channel, bits)

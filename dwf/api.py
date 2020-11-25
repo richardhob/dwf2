@@ -1616,73 +1616,365 @@ class DwfDigitalOut(Dwf):
         return _l.FDwfDigitalOutWaitGet(self.hdwf)
 
     def repeatInfo(self):
+        '''Get the supported repeat count range, which is how many times the
+        generated signal will be repeated.
+
+        '0' here mean repeating forever.
+
+        Returns:
+            (Min, Max) repeat count as a tuple
+        '''
         return _l.FDwfDigitalOutRepeatInfo(self.hdwf)
+
     def repeatSet(self, repeat):
+        '''Set the number of times to repeat the generated signal.
+
+        Args:
+            repeat (int): Number of times to repeat the sigal. A value of '0'
+                means repeat the signal forever.
+        '''
         _l.FDwfDigitalOutRepeatSet(self.hdwf, repeat)
+
     def repeatGet(self):
+        '''Get the number of times the generated signal is set to repeat for.
+
+        Returns:
+            Number of times the generated signal will repeat (as an integer)
+        '''
         return _l.FDwfDigitalOutRepeatGet(self.hdwf)
+
     def repeatStatus(self):
+        '''Get the remaining number of counts left in the generation output.
+
+        This does not retreive data from the device. This method uses the
+        information retreived from `dev.status`, so that must be called before
+        this method will return meaningful results.
+
+        Returns:
+            Remaining number of generation cycles as an integer.
+        '''
         return _l.FDwfDigitalOutRepeatStatus(self.hdwf)
 
     def repeatTriggerSet(self, repeat_trigger):
+        '''Include or exclude the wait / run repeat cycles.
+
+        Args:
+            repeat_trigger (bool): If true, include in the wait / run repeat
+                cycle.
+        '''
         _l.FDwfDigitalOutRepeatTriggerSet(self.hdwf, repeat_trigger)
+
     def repeatTriggerGet(self):
-        return _l.FDwfDigitalOutRepeatTriggerGet(self.hdwf)
+        '''Get the repeat trigger inclusion / exclusion setting from the
+        instrument.
+
+        Returns:
+            True if included in the wait - run repeat cycle. False otherwise.
+        '''
+        return bool(_l.FDwfDigitalOutRepeatTriggerGet(self.hdwf))
 
     def channelCount(self): #renamed
+        '''Get the number of Digital Out channels of the device's instrument.
+
+        Returns:
+            Number of digital out channels as an integer.
+        '''
         return _l.FDwfDigitalOutCount(self.hdwf)
+
     def enableSet(self, idxChannel, enable):
+        '''Set the input channels enable state.
+
+        Args:
+            idxChannel (int): DigitalOut Channel index.
+            enable (bool): Enable (True) or disable (False) the selected
+                Channel.
+        '''
         _l.FDwfDigitalOutEnableSet(self.hdwf, idxChannel, enable)
+
     def enableGet(self, idxChannel):
+        '''Get the selected channels enabled state.
+
+        Returns:
+            True if enabled, false otherwise.
+        '''
         return bool(_l.FDwfDigitalOutEnableGet(self.hdwf, idxChannel))
 
     def outputInfo(self, idxChannel):
+        '''Get the selected channels valid output states.
+
+        Depending on the selected channel, the following output states (dwf.DwfDigitalOut.OUTPUT) are available:
+
+        - dwf.DwfDigitalOut.OUTPUT.PUSH_PULL
+        - dwf.DwfDigitalOut.OUTPUT.OPEN_DRAIN
+        - dwf.DwfDigitalOut.OUTPUT.OPEN_SOURCE
+        - dwf.DwfDigitalOut.OUTPUT.TRISTATE
+
+        The `OPEN_DRAIN` and `OPEN_SOURCE` types require External Pullup or pull
+        down resistors.
+
+        The `TRISTATE` type is available when using the `custom` or `random`
+        types?
+
+        Returns:
+            Tuple of valid channel states (dwf.DwfDigitalOut.OUTPUT)
+        '''
         return _make_set(
             _l.FDwfDigitalOutOutputInfo(self.hdwf, idxChannel), self.OUTPUT)
+
     def outputSet(self, idxChannel, output_mode):
+        '''Set the selected channels output Type.
+
+        Depending on the selected channel, the following output states (dwf.DwfDigitalOut.OUTPUT) are available:
+
+        - dwf.DwfDigitalOut.OUTPUT.PUSH_PULL
+        - dwf.DwfDigitalOut.OUTPUT.OPEN_DRAIN
+        - dwf.DwfDigitalOut.OUTPUT.OPEN_SOURCE
+        - dwf.DwfDigitalOut.OUTPUT.TRISTATE
+
+        The `OPEN_DRAIN` and `OPEN_SOURCE` types require External Pullup or pull
+        down resistors.
+
+        The `TRISTATE` type is available when using the `custom` or `random`
+        types?
+
+        Args:
+            idxChannel (int): Digital Output channel index
+            output_mode (dwf.DwfDigitalOut): Output type
+        '''
         _l.FDwfDigitalOutOutputSet(self.hdwf, idxChannel, output_mode)
+
     def outputGet(self, idxChannel):
+        '''Get the channel output type.
+
+        Args:
+            idxChannel (int): Digital Output channel index
+
+        Returns:
+            Input channel's output type (dwf.DwfDigitalOut)
+        '''
         return self.OUTPUT(_l.FDwfDigitalOutOutputGet(self.hdwf, idxChannel))
 
     def typeInfo(self, idxChannel):
+        '''Get the input channel's supported type.
+
+        The Channel types are:
+
+        - dwf.DwfDigitalOut.TYPE.PULSE
+        - dwf.DwfDigitalOut.TYPE.CUSTOM
+        - dwf.DwfDigitalOut.TYPE.RANDOM
+
+        Args:
+            idxChannel (int): Digital Output channel index
+
+        Returns:
+            Input channel's supported types as a frozen set of enums.
+        '''
         return _make_set(
             _l.FDwfDigitalOutTypeInfo(self.hdwf, idxChannel), self.TYPE)
+
     def typeSet(self, idxChannel, output_type):
+        '''Set the input channel's type.
+
+        The Channel output modes are:
+
+        - dwf.DwfDigitalOut.TYPE.PULSE
+        - dwf.DwfDigitalOut.TYPE.CUSTOM
+        - dwf.DwfDigitalOut.TYPE.RANDOM
+
+        Args:
+            idxChannel (int): Digital Output channel index
+        '''
         _l.FDwfDigitalOutTypeSet(self.hdwf, idxChannel, output_type)
+
     def typeGet(self, idxChannel):
+        '''Get the set channel type.
+
+        Args:
+            idxChannel (int): Digital Output channel index
+
+        Returns:
+            The selected channel's type as an dwf.DwfDigitalOut.TYPE enum
+        '''
         return self.TYPE(_l.FDwfDigitalOutTypeGet(self.hdwf, idxChannel))
 
     def idleInfo(self, idxChannel):
+        '''Get the selected channel idle output states available.
+
+        Idle states are:
+
+        - dwf.DwfDigitalOut.IDLE.INIT
+        - dwf.DwfDigitalOut.IDLE.LOW
+        - dwf.DwfDigitalOut.IDLE.HIGH
+        - dwf.DwfDigitalOut.IDLE.HiZ
+
+        Args:
+            idxChannel (int): Selected channel
+
+        Returns:
+            Frozen set of input channel's idle output states.
+        '''
         return _make_set(
             _l.FDwfDigitalOutIdleInfo(self.hdwf, idxChannel), self.IDLE)
+
     def idleSet(self, idxChannel, idle_mode):
+        '''Set the selected channel's output in the Idle state.
+
+        Idle states are:
+
+        - dwf.DwfDigitalOut.IDLE.INIT
+        - dwf.DwfDigitalOut.IDLE.LOW
+        - dwf.DwfDigitalOut.IDLE.HIGH
+        - dwf.DwfDigitalOut.IDLE.HiZ
+
+        Args:
+            idxChannel (int): Selected output channel
+            idle_mode (dwf.DwfDigitalOut.IDLE): Output IDLE mode.
+        '''
         _l.FDwfDigitalOutIdleSet(self.hdwf, idxChannel, idle_mode)
+
     def idleGet(self, idxChannel):
+        '''Get the selected channel's set Idle state.
+
+        Args:
+            idxChannel (int): Selected output channel
+
+        Returns:
+            Selected channel's idle output state as an enum (dwf.DwfDigitalOut.IDLE)
+        '''
         return self.IDLE(_l.FDwfDigitalOutIdleGet(self.hdwf, idxChannel))
 
     def dividerInfo(self, idxChannel):
+        '''Get the minimum and maximum supported clock divider for the selected
+        digital out channel.
+
+        Args:
+            idxChannel (int): Selected Digital Out Channel
+
+        Returns:
+            (Min, Max) channel clock divider.
+        '''
         return _l.FDwfDigitalOutDividerInfo(self.hdwf, idxChannel)
+
     def dividerInitSet(self, idxChannel, init):
+        '''Set the initial clock divider for the selected channel.
+
+        Args:
+            idxChannel (int): Selected Digital Out Channel
+            init (int): Clock Divider
+        '''
         _l.FDwfDigitalOutDividerInitSet(self.hdwf, idxChannel, init)
+
     def dividerInitGet(self, idxChannel):
+        '''Get the initial clock divider for the selected channel.
+
+        Args:
+            idxChannel (int): Selected Digital Out Channel
+
+        Returns:
+            Set initial clock divider as an integer.
+        '''
         return _l.FDwfDigitalOutDividerInitGet(self.hdwf, idxChannel)
+
     def dividerSet(self, idxChannel, value):
+        '''Set the running mode clock divider for the selected channel.
+
+        Args:
+            idxChannel (int): Selected Digital Out Channel
+            value (int): Clock Divider
+        '''
         _l.FDwfDigitalOutDividerSet(self.hdwf, idxChannel, value)
+
     def dividerGet(self, idxChannel):
+        '''Get the clock divider for the selected channel.
+
+        Args:
+            idxChannel (int): Selected Digital Out Channel
+
+        Returns:
+            Clock divider as an integer.
+        '''
         return _l.FDwfDigitalOutDividerGet(self.hdwf, idxChannel)
 
     def counterInfo(self, idxChannel):
+        '''Get the channel's supported counter range.
+
+        Args:
+            idxChannel (int): Selected Digital Out Channel
+
+        Returns:
+            (Min, Max) counter range as an integer.
+        '''
         return _l.FDwfDigitalOutCounterInfo(self.hdwf, idxChannel)
+
     def counterInitSet(self, idxChannel, start_high, init):
+        '''Set the channel's initial counter value and state.
+
+        Args:
+            idxChannel (int): Selected Digital Out Channel
+            start_high (bool): Initial counter state. True is enabled.
+            init (int): Intial counter value.
+        '''
         _l.FDwfDigitalOutCounterInitSet(self.hdwf, idxChannel, start_high, init)
+
     def counterInitGet(self, idxChannel):
+        '''Get the channel's inital counter value and state.
+
+        Args:
+            idxChannel (int): Selected Digital Out Channel
+
+        Returns:
+            (State <bool>, Counter Value <int>)
+        '''
         return _l.FDwfDigitalOutCounterInitGet(self.hdwf, idxChannel)
+
     def counterSet(self, idxChannel, low, high):
+        '''Set the channel's low and high counter value.
+
+        Args:
+            idxChannel (int): Selected Digital Out Channel
+            low (int): Counter low value
+            high (int): Counter high value
+        '''
         _l.FDwfDigitalOutCounterSet(self.hdwf, idxChannel, low, high)
+
     def counterGet(self, idxChannel):
+        '''Get the channel's low / high counter value.
+
+        Args:
+            idxChannel (int): Selected Digital Out Channel
+
+        Returns:
+            (Low, High) counter values as integers
+        '''
         return _l.FDwfDigitalOutCounterGet(self.hdwf, idxChannel)
 
     def dataInfo(self, idxChannel):
+        '''Get the maximum buffer size for the number of customer data bits.
+
+        Args:
+            idxChannel (int): Selected Digital Out Channel
+
+        Returns:
+            Maximum buffer size in bytes.
+        '''
         return _l.FDwfDigitalOutDataInfo(self.hdwf, idxChannel)
+
     def dataSet(self, idxChannel, rgBits):
+        '''Configure the custom data output.
+
+        The data is sent out through the selected channel in LSB order. Each
+        output is configured using two bits:
+
+        - Bit 0 (2, 4, 6, etc.) Output Value
+        - Bit 1 (3, 5, 7, etc.) Output Enable
+
+        This function also sets the Counter initial, low, and high values,
+        according to the number of bits.
+
+        I'm not 100% sure how this works, more information is needed.
+
+        Args:
+            idxChannel (int): Selected Digital Out Channel
+            rgBits (list): Array of bits / bytes to be sent.
+        '''
         _l.FDwfDigitalOutDataSet(self.hdwf, idxChannel, rgBits)
